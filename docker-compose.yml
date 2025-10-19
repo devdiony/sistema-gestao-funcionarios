@@ -1,0 +1,92 @@
+# A seção 'services' define todos os contêineres que comporão nossa aplicação.
+services:
+  # Serviço do Proxy Reverso com Nginx
+  nginx:
+    # A construção da imagem será baseada no Dockerfile dentro da pasta ./nginx
+    build: ./nginx
+    # Nome do contêiner para fácil identificação
+    container_name: nginx
+    # Mapeia a porta definida em NGINX_PORT no host para a porta 80 do contêiner.
+    ports:
+      - "${NGINX_PORT}:80"
+    # Garante que este contêiner dependa dos outros para iniciar na ordem correta
+    depends_on:
+      - frontend
+      - backend
+    # Conecta o contêiner à nossa rede customizada
+    networks:
+      - my_network
+
+  # Serviço de Frontend (React com Vite)
+  frontend:
+    build: ./frontend
+    container_name: frontend
+    # O comando 'npm run dev' é o que inicia o servidor de desenvolvimento com hot-reload.
+    command: npm run dev
+    # Volumes montam o código-fonte do host para dentro do contêiner, permitindo o hot-reload.
+    volumes:
+      - ./frontend:/app
+      # Este volume anônimo evita que o node_modules do host sobrescreva o do contêiner.
+      - /app/node_modules
+    networks:
+      - my_network
+
+  # Serviço de Backend (NestJS)
+  backend:
+    build: ./backend
+    container_name: backend
+    # O comando 'npm run start:dev' inicia o NestJS em modo de desenvolvimento com hot-reload.
+    command: npm run start:dev
+    volumes:
+      - ./backend:/app
+      - /app/node_modules
+    networks:
+      - my_network
+    # Depende do banco de dados para garantir que o DB esteja pronto antes da API.
+    depends_on:
+      - db
+
+  # Serviço do Banco de Dados PostgreSQL
+  db:
+    image: postgres:alpine
+    container_name: db
+    # Reinicia o contêiner a menos que seja parado manualmente.
+    restart: unless-stopped
+    # Variáveis de ambiente para configurar o PostgreSQL, lidas do arquivo .env.
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    # O volume 'postgres-data' garante que os dados do banco persistam.
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    networks:
+      - my_network
+
+  # Serviço de Administração do Banco de Dados com pgAdmin
+  pgadmin:
+    image: dpage/pgadmin4
+    container_name: pgadmin
+    restart: unless-stopped
+    # TESTE: Mapeando a porta diretamente para isolar o problema.
+    ports:
+      - "5050:80"
+    environment:
+      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_DEFAULT_EMAIL}
+      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_DEFAULT_PASSWORD}
+    volumes:
+      - pgadmin-data:/var/lib/pgadmin
+    networks:
+      - my_network
+    depends_on:
+      - db
+
+# A seção 'volumes' define os volumes nomeados para persistência de dados.
+volumes:
+  postgres-data:
+  pgadmin-data:
+
+# A seção 'networks' define nossa rede customizada.
+networks:
+  my_network:
+    driver: bridge
