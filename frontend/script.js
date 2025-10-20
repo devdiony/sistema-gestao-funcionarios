@@ -1,205 +1,233 @@
-// --- EXERCÍCIO 2: CLASSE ALUNO ---
-class Aluno {
-    constructor(id, nome, idade, curso, notaFinal) {
-        this.id = id;
-        this.nome = nome;
-        this.idade = idade;
-        this.curso = curso;
-        this.notaFinal = notaFinal;
+// Exercício 2: Criando a classe Funcionario
+class Funcionario {
+    // Atributos privados
+    #id;
+    #nome;
+    #idade;
+    #cargo;
+    #salario;
+
+    // Construtor para inicializar os dados
+    constructor(nome, idade, cargo, salario) {
+        this.#id = Funcionario.gerarId();
+        this.#nome = nome;
+        this.#idade = idade;
+        this.#cargo = cargo;
+        this.#salario = salario;
     }
 
-    // Método que retorna true se a nota for >= 7
-    isAprovado() {
-        return this.notaFinal >= 7;
+    // Métodos de acesso (getters)
+    get id() { return this.#id; }
+    get nome() { return this.#nome; }
+    get idade() { return this.#idade; }
+    get cargo() { return this.#cargo; }
+    get salario() { return this.#salario; }
+
+    // Métodos de acesso (setters) para permitir a atualização
+    set nome(novoNome) { this.#nome = novoNome; }
+    set idade(novaIdade) { this.#idade = novaIdade; }
+    set cargo(novoCargo) { this.#cargo = novoCargo; }
+    set salario(novoSalario) { this.#salario = novoSalario; }
+
+    // Método estático para gerar um ID único simples
+    static proximoId = 1;
+    static gerarId() {
+        return this.proximoId++;
     }
 
-    // Método que retorna uma string formatada com os dados
+    // Método para formatar os dados do funcionário
     toString() {
-        return `ID: ${this.id}, Nome: ${this.nome}, Idade: ${this.idade}, Curso: ${this.curso}, Nota: ${this.notaFinal}`;
+        return `ID: ${this.id}, Nome: ${this.nome}, Idade: ${this.idade}, Cargo: ${this.cargo}, Salário: R$ ${this.salario.toFixed(2)}`;
+    }
+    
+    toJSON() {
+        return {
+            id: this.id,
+            nome: this.nome,
+            idade: this.idade,
+            cargo: this.cargo,
+            salario: this.salario
+        };
     }
 }
 
-// --- ARMAZENAMENTO EM MEMÓRIA (EXERCÍCIO 1) ---
-let alunos = [];
-let proximoId = 1;
-let alunoEmEdicao = null;
+// Classe para gerenciar a lista de funcionários e a interface
+class GerenciadorDeFuncionarios {
+    constructor() {
+        this.funcionarios = [];
+        this.form = document.getElementById('formFuncionario');
+        this.tabelaCorpo = document.getElementById('tabelaFuncionarios');
+        this.btnCancelar = document.getElementById('btnCancelar');
+        this.campoId = document.getElementById('funcionarioId');
+        
+        this.btnRelatorioSalario = document.getElementById('btnRelatorioSalario');
+        this.btnRelatorioMediaSalarial = document.getElementById('btnRelatorioMediaSalarial');
+        this.btnRelatorioCargos = document.getElementById('btnRelatorioCargos');
+        this.btnRelatorioNomesMaiusculo = document.getElementById('btnRelatorioNomesMaiusculo');
+        this.areaRelatorios = document.getElementById('areaRelatorios');
+        this.conteudoRelatorio = document.getElementById('conteudoRelatorio');
 
-// --- REFERÊNCIAS DO DOM ---
-const form = document.getElementById('aluno-form');
-const tabelaAlunos = document.getElementById('tabela-alunos');
-const btnCancelar = document.getElementById('btn-cancelar');
-
-// --- FUNÇÃO PARA RENDERIZAR A TABELA ---
-const renderizarTabela = () => {
-    tabelaAlunos.innerHTML = ''; // Limpa a tabela antes de redesenhar
-
-    if (alunos.length === 0) {
-        tabelaAlunos.innerHTML = '<tr><td colspan="6" class="text-center">Nenhum aluno cadastrado.</td></tr>';
-        return;
-    }
-
-    alunos.forEach(aluno => {
-        const tr = document.createElement('tr');
-        const situacao = aluno.isAprovado() 
-            ? '<span class="badge bg-success">Aprovado</span>' 
-            : '<span class="badge bg-danger">Reprovado</span>';
-
-        tr.innerHTML = `
-            <td>${aluno.nome}</td>
-            <td>${aluno.idade}</td>
-            <td>${aluno.curso}</td>
-            <td>${aluno.notaFinal}</td>
-            <td>${situacao}</td>
-            <td>
-                <button class="btn btn-sm btn-warning btn-editar" data-id="${aluno.id}">Editar</button>
-                <button class="btn btn-sm btn-danger btn-excluir" data-id="${aluno.id}">Excluir</button>
-            </td>
-        `;
-        tabelaAlunos.appendChild(tr);
-    });
-};
-
-// --- EXERCÍCIO 3: EVENTOS, FUNÇÕES ANÔNIMAS E ARROW FUNCTIONS ---
-
-// Evento de submit do formulário
-form.addEventListener('submit', (event) => {
-    event.preventDefault(); // Evita o recarregamento da página
-
-    const nome = document.getElementById('nome').value;
-    const idade = parseInt(document.getElementById('idade').value);
-    const curso = document.getElementById('curso').value;
-    const notaFinal = parseFloat(document.getElementById('notaFinal').value);
-
-    if (alunoEmEdicao) {
-        // Editando um aluno existente
-        alunoEmEdicao.nome = nome;
-        alunoEmEdicao.idade = idade;
-        alunoEmEdicao.curso = curso;
-        alunoEmEdicao.notaFinal = notaFinal;
-        console.log(`Aluno editado: ${alunoEmEdicao.toString()}`);
-        alert('Aluno atualizado com sucesso!');
-        alunoEmEdicao = null;
-        btnCancelar.classList.add('d-none');
-    } else {
-        // Cadastrando um novo aluno
-        const novoAluno = new Aluno(proximoId++, nome, idade, curso, notaFinal);
-        alunos.push(novoAluno);
-        console.log(`Aluno cadastrado: ${novoAluno.toString()}`);
-        alert('Aluno cadastrado com sucesso!');
+        this.registrarEventos();
     }
     
-    form.reset();
-    renderizarTabela();
-});
+    registrarEventos() {
+        this.form.addEventListener('submit', (evento) => {
+            evento.preventDefault();
+            this.salvar();
+        });
 
-// Evento de clique na tabela (para botões de editar e excluir)
-tabelaAlunos.addEventListener('click', function(event) {
-    const id = parseInt(event.target.dataset.id);
-    
-    // Excluir aluno
-    if (event.target.classList.contains('btn-excluir')) {
-        alunos = alunos.filter(aluno => aluno.id !== id);
-        renderizarTabela();
-        console.log(`Aluno com ID ${id} foi excluído.`);
-        alert('Aluno excluído com sucesso!');
+        this.btnCancelar.addEventListener('click', () => {
+            this.limparFormulario();
+        });
+
+        this.btnRelatorioSalario.addEventListener('click', () => this.gerarRelatorioSalariosAltos());
+        this.btnRelatorioMediaSalarial.addEventListener('click', () => this.gerarRelatorioMediaSalarial());
+        this.btnRelatorioCargos.addEventListener('click', () => this.gerarRelatorioCargosUnicos());
+        this.btnRelatorioNomesMaiusculo.addEventListener('click', () => this.gerarRelatorioNomesMaiusculo());
     }
 
-    // Editar aluno
-    if (event.target.classList.contains('btn-editar')) {
-        alunoEmEdicao = alunos.find(aluno => aluno.id === id);
-        if (alunoEmEdicao) {
-            document.getElementById('nome').value = alunoEmEdicao.nome;
-            document.getElementById('idade').value = alunoEmEdicao.idade;
-            document.getElementById('curso').value = alunoEmEdicao.curso;
-            document.getElementById('notaFinal').value = alunoEmEdicao.notaFinal;
-            btnCancelar.classList.remove('d-none');
-            window.scrollTo(0, 0); // Rola a página para o topo para ver o formulário
+    salvar() {
+        let id = parseInt(this.campoId.value);
+        let nome = document.getElementById('nome').value;
+        let idade = parseInt(document.getElementById('idade').value);
+        let cargo = document.getElementById('cargo').value;
+        let salario = parseFloat(document.getElementById('salario').value);
+
+        if (id) {
+            this.editar(id, nome, idade, cargo, salario);
+        } else {
+            let novoFuncionario = new Funcionario(nome, idade, cargo, salario);
+            this.funcionarios.push(novoFuncionario);
+        }
+
+        this.renderizarTabela();
+        this.limparFormulario();
+    }
+
+    renderizarTabela() {
+        this.tabelaCorpo.innerHTML = '';
+        if (this.funcionarios.length === 0) {
+            let linhaVazia = `<tr><td colspan="6" class="text-center">Nenhum funcionário cadastrado.</td></tr>`;
+            this.tabelaCorpo.innerHTML = linhaVazia;
+            return;
+        }
+
+        this.funcionarios.forEach(funcionario => {
+            let linha = document.createElement('tr');
+            linha.innerHTML = `
+                <td>${funcionario.id}</td>
+                <td>${funcionario.nome}</td>
+                <td>${funcionario.idade}</td>
+                <td>${funcionario.cargo}</td>
+                <td>R$ ${funcionario.salario.toFixed(2)}</td>
+                <td>
+                    <div class="btn-group btn-group-sm">
+                        <button class="btn btn-warning btn-editar">
+                            <i class="bi bi-pencil"></i> Editar
+                        </button>
+                        <button class="btn btn-danger btn-excluir">
+                            <i class="bi bi-trash"></i> Excluir
+                        </button>
+                    </div>
+                </td>
+            `;
+
+            let btnEditar = linha.querySelector('.btn-editar');
+            btnEditar.addEventListener('click', () => this.carregarParaEdicao(funcionario.id));
+
+            let btnExcluir = linha.querySelector('.btn-excluir');
+            btnExcluir.addEventListener('click', () => this.excluir(funcionario.id));
+
+            this.tabelaCorpo.appendChild(linha);
+        });
+    }
+
+    carregarParaEdicao(id) {
+        let funcionario = this.funcionarios.find(f => f.id === id);
+        if (!funcionario) return;
+
+        this.campoId.value = funcionario.id;
+        document.getElementById('nome').value = funcionario.nome;
+        document.getElementById('idade').value = funcionario.idade;
+        document.getElementById('cargo').value = funcionario.cargo;
+        document.getElementById('salario').value = funcionario.salario;
+
+        this.btnCancelar.style.display = 'inline-block';
+    }
+
+    editar(id, nome, idade, cargo, salario) {
+        let funcionario = this.funcionarios.find(f => f.id === id);
+        if (funcionario) {
+            funcionario.nome = nome;
+            funcionario.idade = idade;
+            funcionario.cargo = cargo;
+            funcionario.salario = salario;
         }
     }
-});
 
-// Evento para cancelar a edição
-btnCancelar.addEventListener('click', () => {
-    alunoEmEdicao = null;
-    form.reset();
-    btnCancelar.classList.add('d-none');
-});
-
-// --- EXERCÍCIO 4: RELATÓRIOS COM FILTER, MAP, REDUCE, SORT ---
-const resultadoRelatorio = document.getElementById('relatorio-resultado');
-
-document.getElementById('btn-aprovados').addEventListener('click', () => {
-    const aprovados = alunos.filter(aluno => aluno.isAprovado());
-    let html = '<h5>Alunos Aprovados (Nota >= 7)</h5>';
-    if (aprovados.length > 0) {
-        html += '<ul class="list-group">';
-        aprovados.forEach(aluno => {
-            html += `<li class="list-group-item">${aluno.nome} - Nota: ${aluno.notaFinal}</li>`;
-        });
-        html += '</ul>';
-    } else {
-        html += '<p>Nenhum aluno aprovado.</p>';
-    }
-    resultadoRelatorio.innerHTML = html;
-});
-
-document.getElementById('btn-media-notas').addEventListener('click', () => {
-    if (alunos.length === 0) {
-        resultadoRelatorio.innerHTML = '<p>Não há alunos para calcular a média.</p>';
-        return;
-    }
-    const somaDasNotas = alunos.reduce((acc, aluno) => acc + aluno.notaFinal, 0);
-    const media = (somaDasNotas / alunos.length).toFixed(2);
-    resultadoRelatorio.innerHTML = `<h5>Média das Notas Finais</h5><p class="fs-4">${media}</p>`;
-});
-
-document.getElementById('btn-media-idades').addEventListener('click', () => {
-     if (alunos.length === 0) {
-        resultadoRelatorio.innerHTML = '<p>Não há alunos para calcular a média.</p>';
-        return;
-    }
-    const somaDasIdades = alunos.reduce((acc, aluno) => acc + aluno.idade, 0);
-    const media = (somaDasIdades / alunos.length).toFixed(1);
-    resultadoRelatorio.innerHTML = `<h5>Média das Idades</h5><p class="fs-4">${media} anos</p>`;
-});
-
-document.getElementById('btn-ordenar-nome').addEventListener('click', () => {
-    const nomesOrdenados = [...alunos] // Cria uma cópia para não alterar o array original
-        .sort((a, b) => a.nome.localeCompare(b.nome))
-        .map(aluno => aluno.nome);
-    
-    let html = '<h5>Alunos em Ordem Alfabética</h5>';
-    if (nomesOrdenados.length > 0) {
-        html += '<ul class="list-group">';
-        nomesOrdenados.forEach(nome => {
-            html += `<li class="list-group-item">${nome}</li>`;
-        });
-        html += '</ul>';
-    } else {
-        html += '<p>Nenhum aluno cadastrado.</p>';
-    }
-    resultadoRelatorio.innerHTML = html;
-});
-
-document.getElementById('btn-alunos-curso').addEventListener('click', () => {
-    const contagemPorCurso = alunos.reduce((acc, aluno) => {
-        acc[aluno.curso] = (acc[aluno.curso] || 0) + 1;
-        return acc;
-    }, {});
-
-    let html = '<h5>Quantidade de Alunos por Curso</h5>';
-    if (Object.keys(contagemPorCurso).length > 0) {
-         html += '<ul class="list-group">';
-        for(const curso in contagemPorCurso) {
-            html += `<li class="list-group-item d-flex justify-content-between align-items-center">${curso} <span class="badge bg-primary rounded-pill">${contagemPorCurso[curso]}</span></li>`;
+    excluir(id) {
+        if (confirm(`Tem certeza que deseja excluir o funcionário com ID ${id}?`)) {
+            this.funcionarios = this.funcionarios.filter(f => f.id !== id);
+            this.renderizarTabela();
         }
-        html += '</ul>';
-    } else {
-         html += '<p>Nenhum aluno cadastrado.</p>';
     }
-    resultadoRelatorio.innerHTML = html;
+
+    limparFormulario() {
+        this.form.reset();
+        this.campoId.value = '';
+        this.btnCancelar.style.display = 'none';
+        document.getElementById('nome').focus();
+    }
+    
+    mostrarResultadoRelatorio(titulo, dados) {
+        this.areaRelatorios.style.display = 'block';
+        let conteudoFormatado = JSON.stringify(dados, null, 2);
+        this.conteudoRelatorio.textContent = `${titulo}:\n\n${conteudoFormatado}`;
+    }
+
+    gerarRelatorioSalariosAltos() {
+        let funcionariosFiltrados = this.funcionarios.filter(f => f.salario > 5000);
+
+        this.areaRelatorios.style.display = 'block';
+        let titulo = "Funcionários com salário maior que R$ 5000";
+        let conteudoFinal = "";
+
+        if (funcionariosFiltrados.length === 0) {
+            conteudoFinal = "[]"; 
+        } else {
+            let itensRelatorio = funcionariosFiltrados.map(f => {
+                return `  {\n    "id": ${f.id},\n    "nome": "${f.nome}",\n    "idade": ${f.idade},\n    "cargo": "${f.cargo}",\n    "salario": ${f.salario}\n  }`;
+            });
+            conteudoFinal = `[\n${itensRelatorio.join(',\n')}\n]`;
+        }
+        
+        this.conteudoRelatorio.textContent = `${titulo}:\n\n${conteudoFinal}`;
+    }
+    
+    gerarRelatorioMediaSalarial() {
+        if (this.funcionarios.length === 0) {
+             this.mostrarResultadoRelatorio("Média Salarial", "Nenhum funcionário cadastrado para calcular a média.");
+             return;
+        }
+        let totalSalarios = this.funcionarios.reduce((acumulador, f) => acumulador + f.salario, 0);
+        let media = totalSalarios / this.funcionarios.length;
+        this.mostrarResultadoRelatorio("Média Salarial", `R$ ${media.toFixed(2)}`);
+    }
+
+    gerarRelatorioCargosUnicos() {
+        let cargos = this.funcionarios.map(f => f.cargo);
+        let cargosUnicos = [...new Set(cargos)];
+        this.mostrarResultadoRelatorio("Cargos Únicos na Empresa", cargosUnicos);
+    }
+
+    gerarRelatorioNomesMaiusculo() {
+        let nomesMaiusculo = this.funcionarios.map(f => f.nome.toUpperCase());
+        this.mostrarResultadoRelatorio("Nomes dos Funcionários em Maiúsculo", nomesMaiusculo);
+    }
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    let app = new GerenciadorDeFuncionarios();
+    app.renderizarTabela();
 });
 
-// --- INICIALIZAÇÃO ---
-// Renderiza a tabela pela primeira vez ao carregar a página
-renderizarTabela();

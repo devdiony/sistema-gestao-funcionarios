@@ -1,22 +1,22 @@
-Sistema de Gerenciamento de Alunos com Docker 🐳
+Sistema de Gestão de Funcionários com Docker 🐳
 
-Este repositório contém a implementação de um sistema web para o gerenciamento de alunos, desenvolvido em um ambiente de desenvolvimento completo e containerizado com Docker Compose.
+Este repositório contém a implementação de um sistema web para o gerenciamento de funcionários, desenvolvido em um ambiente de desenvolvimento completo e containerizado com Docker Compose.
 
 🚀 Sobre o Projeto
 
-Este projeto é um sistema CRUD (Criar, Ler, Atualizar, Deletar) para o gerenciamento de alunos da escola fictícia "DevTech Academy". A aplicação permite:
+Este projeto é um sistema CRUD (Criar, Ler, Atualizar, Deletar) para o gerenciamento de funcionários de uma startup de tecnologia. A aplicação permite:
 
-Cadastrar novos alunos através de um formulário.
+Cadastrar novos funcionários através de um formulário.
 
-Listar todos os alunos cadastrados em uma tabela.
+Listar todos os funcionários cadastrados em uma tabela.
 
-Editar as informações de um aluno existente.
+Editar as informações de um funcionário existente.
 
-Excluir um aluno da lista.
+Excluir um funcionário da lista.
 
-Gerar relatórios dinâmicos, como a lista de alunos aprovados, média de notas, e mais.
+Gerar relatórios dinâmicos, como a lista de funcionários com salários altos, média salarial, e mais.
 
-O sistema foi construído aplicando conceitos de manipulação de DOM com JavaScript puro, orientação a objetos (Classes), tratamento de eventos e programação funcional com métodos de array (map, filter, reduce, sort).
+O sistema foi construído aplicando conceitos de manipulação de DOM com JavaScript puro, orientação a objetos (Classes), tratamento de eventos e programação funcional com métodos de array (map, filter, reduce).
 
 🛠️ Tecnologias Utilizadas
 
@@ -46,6 +46,8 @@ git clone [https://github.com/SEU-USUARIO/SEU-REPOSITORIO.git](https://github.co
 cd SEU-REPOSITORIO
 
 
+(Substitua pela URL do seu novo repositório após criá-lo)
+
 2. Configure as variáveis de ambiente
 
 Copie o arquivo de exemplo .env.example para um novo arquivo chamado .env.
@@ -53,7 +55,7 @@ Copie o arquivo de exemplo .env.example para um novo arquivo chamado .env.
 cp .env.example .env
 
 
-As variáveis de ambiente neste projeto são para os serviços de banco de dados e pgAdmin, que fazem parte do boilerplate base.
+(As variáveis de ambiente neste projeto são para os serviços de banco de dados e pgAdmin, que fazem parte do boilerplate base).
 
 3. Suba os contêineres
 
@@ -66,7 +68,7 @@ docker-compose up --build -d
 
 🌐 Acessando a Aplicação
 
-Após a execução, o sistema de gerenciamento de alunos estará disponível no seguinte endereço:
+Após a execução, o sistema de gerenciamento de funcionários estará disponível no seguinte endereço:
 
 Serviço
 
@@ -74,13 +76,11 @@ URL de Acesso
 
 Propósito
 
-Sistema de Alunos
+Sistema de Funcionários
 
 http://localhost:5173
 
-Acesso direto à aplicação de gerenciamento de alunos.
-
-(Nota: O ambiente completo também inclui outros serviços como Nginx e pgAdmin, que podem ser acessados conforme configurado no boilerplate original, mas não são diretamente utilizados por esta aplicação específica).
+Acesso direto à aplicação de gerenciamento de funcionários.
 
 comandos Úteis do Docker Compose
 
@@ -97,3 +97,8 @@ docker-compose logs -f frontend
 Ver o status dos contêineres:
 
 docker-compose ps
+
+
+📄 Licença
+
+Este projeto está sob a licença MIT.

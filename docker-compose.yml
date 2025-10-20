@@ -30,7 +30,7 @@ services:
     command: npm run dev
     # Volumes montam o código-fonte do host para dentro do contêiner, permitindo o hot-reload.
     volumes:
-      - ./frontend:/app
+      - ./frontend:/usr/src/app
       # Este volume anônimo evita que o node_modules do host sobrescreva o do contêiner.
       - /app/node_modules
     networks:
