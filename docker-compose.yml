@@ -22,6 +22,11 @@ services:
     build: ./frontend
     container_name: frontend
     # O comando 'npm run dev' é o que inicia o servidor de desenvolvimento com hot-reload.
+    # Mapeia a porta 5173 do seu computador (host) para a porta 5173 do contêiner.
+    # É isso que permite que você acesse o localhost:5173 no seu navegador.
+    ports:
+      - "5173:5173"
+    # O comando 'npm run dev' é o que inicia o servidor de desenvolvimento com hot-reload.
     command: npm run dev
     # Volumes montam o código-fonte do host para dentro do contêiner, permitindo o hot-reload.
     volumes:
