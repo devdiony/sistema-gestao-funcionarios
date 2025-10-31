@@ -167,7 +167,7 @@ class GerenciadorDeFuncionarios {
 
     excluir(id) {
         if (confirm(`Tem certeza que deseja excluir o funcionário com ID ${id}?`)) {
-            this.funcionarios = this.funcionarios.filter(f => f.id !== id);
+            this.funcionarios = this.funcionarios.filter(f => f.id !== id); // percorre array e cria 1 novo
             this.renderizarTabela();
         }
     }
@@ -187,14 +187,14 @@ class GerenciadorDeFuncionarios {
 
     gerarRelatorioSalariosAltos() {
         let funcionariosFiltrados = this.funcionarios.filter(f => f.salario > 5000);
-
-        this.areaRelatorios.style.display = 'block';
+        // percorre array e cria 1 novo com a condição necessária.  
+        this.areaRelatorios.style.display = 'block';    
         let titulo = "Funcionários com salário maior que R$ 5000";
         let conteudoFinal = "";
 
         if (funcionariosFiltrados.length === 0) {
             conteudoFinal = "[]"; 
-        } else {
+        } else { // transforma array em um outro
             let itensRelatorio = funcionariosFiltrados.map(f => {
                 return `  {\n    "id": ${f.id},\n    "nome": "${f.nome}",\n    "idade": ${f.idade},\n    "cargo": "${f.cargo}",\n    "salario": ${f.salario}\n  }`;
             });
@@ -208,20 +208,20 @@ class GerenciadorDeFuncionarios {
         if (this.funcionarios.length === 0) {
              this.mostrarResultadoRelatorio("Média Salarial", "Nenhum funcionário cadastrado para calcular a média.");
              return;
-        }
+        }  //reduz array a 1 unico valor 
         let totalSalarios = this.funcionarios.reduce((acumulador, f) => acumulador + f.salario, 0);
         let media = totalSalarios / this.funcionarios.length;
         this.mostrarResultadoRelatorio("Média Salarial", `R$ ${media.toFixed(2)}`);
     }
 
     gerarRelatorioCargosUnicos() {
-        let cargos = this.funcionarios.map(f => f.cargo);
+        let cargos = this.funcionarios.map(f => f.cargo); // transforma array em um outro
         let cargosUnicos = [...new Set(cargos)];
         this.mostrarResultadoRelatorio("Cargos Únicos na Empresa", cargosUnicos);
     }
 
     gerarRelatorioNomesMaiusculo() {
-        let nomesMaiusculo = this.funcionarios.map(f => f.nome.toUpperCase());
+        let nomesMaiusculo = this.funcionarios.map(f => f.nome.toUpperCase()); //transforma array em um outro
         this.mostrarResultadoRelatorio("Nomes dos Funcionários em Maiúsculo", nomesMaiusculo);
     }
 }
